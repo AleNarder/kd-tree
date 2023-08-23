@@ -136,7 +136,6 @@ void KD_Tree::print()
 {
 
     KD_Node* root = this->root;
-    int level = 0;
 
     if (root == nullptr)
         return;
