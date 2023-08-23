@@ -2,7 +2,9 @@
 
 This repository contains a simple C++ implementation of a [_k_-d Tree](https://en.wikipedia.org/wiki/_k_-d_tree)
 
-<p style="color: rgb(237, 108, 2); background-color: rgb(255, 244, 229); padding: 12px; border-radius: 6px;">This repo is for educational purpose only, <b>DON'T</b> use it in production</p>
+:warning: **WARNING**
+
+This repo is for educational purpose only, DON'T use it in production
 
 ## Supported operations
 
