@@ -1,4 +1,5 @@
 #include "kd-tree.hpp"
+#include <queue>
 
 /****************************************************************
  * Find Point
@@ -41,7 +42,7 @@ KD_Node *addPointRec(KD_Node *root, KD_Point pt, int level)
 
     int axis = level % pt.size();
 
-    if (pt[axis] < root->point[axis])
+    if (root->point[axis] < pt[axis])
     {
         root->left = addPointRec(root->left, pt, level + 1);
     }
@@ -55,7 +56,7 @@ KD_Node *addPointRec(KD_Node *root, KD_Point pt, int level)
 
 void KD_Tree::addPoint(KD_Point pt)
 {
-    addPointRec(this->root, pt, 0);
+    this->root = addPointRec(this->root, pt, 0);
 };
 
 /****************************************************************
@@ -125,4 +126,53 @@ std::vector<KD_Point> pointsInRangeRec(KD_Node *root, KD_Point pt, int range, in
 std::vector<KD_Point> KD_Tree::pointsInRange(KD_Point pt, int range)
 {
     return pointsInRangeRec(this->root, pt, range, 0);
+};
+
+/****************************************************************
+ * Print tree to standard output
+ */
+
+void KD_Tree::print()
+{
+
+    KD_Node* root = this->root;
+    int level = 0;
+
+    if (root == nullptr)
+        return;
+
+    std::queue<KD_Node *> nodeQ;
+    std::queue<int> levelQ;
+    std::queue<int> offsetQ;
+
+    nodeQ.push(root);
+    levelQ.push(0);
+  
+
+    while (!nodeQ.empty())
+    {
+        KD_Node *current = nodeQ.front();
+        int currentLevel = levelQ.front();
+     
+        nodeQ.pop();
+        levelQ.pop();
+
+        current->print();
+
+        if (levelQ.size() == 0 || currentLevel < levelQ.front()) {
+            std::cout << std::endl;
+        }
+
+        if (current->left && !current->left->deleted)
+        {
+            nodeQ.push(current->left);
+            levelQ.push(currentLevel + 1);
+        }
+
+        if (current->right && !current->right->deleted)
+        {
+            nodeQ.push(current->right);
+            levelQ.push(currentLevel + 1);
+        }
+    }
 };

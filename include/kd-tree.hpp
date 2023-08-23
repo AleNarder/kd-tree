@@ -21,6 +21,7 @@ public:
     void addPoint(KD_Point pt);
     bool deletePoint(KD_Point pt);
     bool findPoint(KD_Point pt);
+    void print();
     std::vector<KD_Point> pointsInRange(KD_Point pt, int range);
 
     // PUBLIC ATTRIBUTES
