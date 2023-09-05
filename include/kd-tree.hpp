@@ -7,14 +7,13 @@ class KD_Tree
 {
 public:
     // CONSTRUCTOR
-    KD_Tree(int dim = 2) : dim(dim)
-    {
+    KD_Tree() {
         this->root = nullptr;
-    };
+    }
 
-    KD_Tree(KD_Point pt)
+    KD_Tree(std::vector<KD_Point> pts)
     {
-        this->root = new KD_Node(pt);
+        this->root = this->build(pts, 0);
     };
 
     // PUBLIC METHODS
@@ -25,8 +24,10 @@ public:
     std::vector<KD_Point> pointsInRange(KD_Point pt, int range);
 
     // PUBLIC ATTRIBUTES
-    int dim;
     KD_Node *root;
+
+private:
+    KD_Node* build (std::vector<KD_Point> pts, int level);
 
 };
 

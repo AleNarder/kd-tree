@@ -1,5 +1,44 @@
 #include "kd-tree.hpp"
+#include <bits/stdc++.h>
+#include "valarray"
 #include <queue>
+
+/****************************************************************
+ * Build k-d Tree
+ */
+
+KD_Node *KD_Tree::build(std::vector<KD_Point> pts, int level)
+{
+
+    if ((int)pts.size() == 0)
+    {
+        return nullptr;
+    }
+
+    if (pts.size() == 1)
+    {
+        return new KD_Node(pts[0]);
+    }
+    else
+    {
+        int axis = level > 0 ? (int)pts[0].size() % level : level;
+        sort(pts.begin(), pts.end(), [axis](KD_Point pt1, KD_Point pt2) -> bool
+             { return pt1[axis] < pt2[axis]; });
+
+        int medianIdx = (int)pts.size() / 2 == 0 ? ((int)pts.size() / 2) - 1 : (((int)pts.size() + 1) / 2) - 1;
+
+        auto median = pts.begin() + medianIdx + 1;
+        auto first = pts.begin();
+        auto last = pts.end();
+
+        KD_Node *root = new KD_Node(pts[medianIdx]);
+
+        root->left = KD_Tree::build(std::vector<KD_Point>(first, median), level + 1);
+        root->right = KD_Tree::build(std::vector<KD_Point>(median + 1, last), level + 1);
+
+        return root;
+    }
+};
 
 /****************************************************************
  * Find Point
@@ -52,7 +91,7 @@ KD_Node *addPointRec(KD_Node *root, KD_Point pt, int level)
     }
 
     return root;
-}
+};
 
 void KD_Tree::addPoint(KD_Point pt)
 {
@@ -135,7 +174,7 @@ std::vector<KD_Point> KD_Tree::pointsInRange(KD_Point pt, int range)
 void KD_Tree::print()
 {
 
-    KD_Node* root = this->root;
+    KD_Node *root = this->root;
 
     if (root == nullptr)
         return;
@@ -146,19 +185,19 @@ void KD_Tree::print()
 
     nodeQ.push(root);
     levelQ.push(0);
-  
 
     while (!nodeQ.empty())
     {
         KD_Node *current = nodeQ.front();
         int currentLevel = levelQ.front();
-     
+
         nodeQ.pop();
         levelQ.pop();
 
         current->print();
 
-        if (levelQ.size() == 0 || currentLevel < levelQ.front()) {
+        if (levelQ.size() == 0 || currentLevel < levelQ.front())
+        {
             std::cout << std::endl;
         }
 
