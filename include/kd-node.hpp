@@ -4,16 +4,18 @@
 #include "./kd-point.hpp"
 #include <iostream>
 
-class KD_Node
+class KdNode
 {
 public:
-    KD_Node *left;
-    KD_Node *right;
-    KD_Point point;
-    bool deleted;
+    KdNode *left;
+    KdNode *right;
+    KdNode *parent;
 
-    KD_Node(const KD_Point &p) : left(nullptr), right(nullptr), point(p) {
-        this->deleted = false;
+    int depth;
+    KdPoint point;
+  
+    KdNode(const KdPoint &p) : left(nullptr), right(nullptr), point(p) {
+        this->parent = nullptr;
     }
 
     void print();

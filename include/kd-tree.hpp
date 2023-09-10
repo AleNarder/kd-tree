@@ -3,31 +3,36 @@
 
 #include "./kd-node.hpp"
 
-class KD_Tree
+class KdTree
 {
 public:
     // CONSTRUCTOR
-    KD_Tree() {
+    KdTree()
+    {
         this->root = nullptr;
     }
 
-    KD_Tree(std::vector<KD_Point> pts)
+    KdTree(std::vector<KdPoint> pts)
     {
         this->root = this->build(pts, 0);
     };
 
     // PUBLIC METHODS
-    void addPoint(KD_Point pt);
-    bool deletePoint(KD_Point pt);
-    bool findPoint(KD_Point pt);
+    bool deletePoint(KdPoint pt);
+    void addPoint(KdPoint pt);
+
+    KdNode* findNode(KdPoint pt);
+    KdPoint nearestNeighbourSearch(KdPoint pt);
+
     void print();
-    std::vector<KD_Point> pointsInRange(KD_Point pt, int range);
+
+    
 
     // PUBLIC ATTRIBUTES
-    KD_Node *root;
+    KdNode *root;
 
 private:
-    KD_Node* build (std::vector<KD_Point> pts, int level);
+    KdNode *build(std::vector<KdPoint> pts, int level);
 
 };
 

@@ -1,6 +1,6 @@
 #include "kd-node.hpp"
 
-void KD_Node::print () {
+void KdNode::print () {
     std::cout << "( ";
     for (float c : this->point) {
         std::cout << c << " ";

@@ -4,9 +4,9 @@
 #include <vector>
 #include <math.h>
 
-typedef std::vector<float> KD_Point;
+typedef std::vector<float> KdPoint;
 
-inline bool operator==(KD_Point pt1, KD_Point pt2)
+inline bool operator==(KdPoint pt1, KdPoint pt2)
 {
 
     if (pt1.size() != pt2.size())
@@ -21,12 +21,12 @@ inline bool operator==(KD_Point pt1, KD_Point pt2)
     return true;
 }
 
-inline bool operator!=(KD_Point pt1, KD_Point pt2)
+inline bool operator!=(KdPoint pt1, KdPoint pt2)
 {
     return !(pt1 == pt2);
 };
 
-inline float euc_kd_distance(KD_Point pt1, KD_Point pt2)
+inline float euc_kd_distance(KdPoint pt1, KdPoint pt2)
 {
     float dist = 0.0;
 

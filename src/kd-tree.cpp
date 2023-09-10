@@ -2,39 +2,53 @@
 #include <bits/stdc++.h>
 #include "valarray"
 #include <queue>
+#include <iostream>
 
 /****************************************************************
  * Build k-d Tree
  */
 
-KD_Node *KD_Tree::build(std::vector<KD_Point> pts, int level)
+KdNode *KdTree::build(std::vector<KdPoint> pts, int depth)
 {
 
-    if ((int)pts.size() == 0)
+    if (pts.size() == 0)
     {
         return nullptr;
     }
 
     if (pts.size() == 1)
     {
-        return new KD_Node(pts[0]);
+        return new KdNode(pts[0]);
     }
     else
     {
-        int axis = level > 0 ? (int)pts[0].size() % level : level;
-        sort(pts.begin(), pts.end(), [axis](KD_Point pt1, KD_Point pt2) -> bool
+        int axis = depth % pts[0].size();
+        sort(pts.begin(), pts.end(), [axis](KdPoint pt1, KdPoint pt2) -> bool
              { return pt1[axis] < pt2[axis]; });
 
-        int medianIdx = (int)pts.size() / 2 == 0 ? ((int)pts.size() / 2) - 1 : (((int)pts.size() + 1) / 2) - 1;
+        int medianIdx = pts.size() / 2 == 0 ? (pts.size() / 2) - 1 : ((pts.size() + 1) / 2) - 1;
 
-        auto median = pts.begin() + medianIdx + 1;
+        auto median = pts.begin() + medianIdx;
         auto first = pts.begin();
         auto last = pts.end();
 
-        KD_Node *root = new KD_Node(pts[medianIdx]);
+        KdNode *root = new KdNode(pts[medianIdx]);
 
-        root->left = KD_Tree::build(std::vector<KD_Point>(first, median), level + 1);
-        root->right = KD_Tree::build(std::vector<KD_Point>(median + 1, last), level + 1);
+        root->left = KdTree::build(std::vector<KdPoint>(first, median), depth + 1);
+
+        if (root->left)
+        {
+            root->left->parent = root;
+            root->left->depth = depth;
+        }
+
+        root->right = KdTree::build(std::vector<KdPoint>(median + 1, last), depth + 1);
+
+        if (root->right)
+        {
+            root->right->parent = root;
+            root->right->depth = depth;
+        }
 
         return root;
     }
@@ -44,56 +58,58 @@ KD_Node *KD_Tree::build(std::vector<KD_Point> pts, int level)
  * Find Point
  */
 
-bool findPointRec(KD_Node *root, KD_Point pt, int level)
+KdNode *findNodeRec(KdNode *root, KdPoint pt, int depth)
 {
 
-    if (root == nullptr || root->deleted)
-        return false;
+    if (root == nullptr)
+        return nullptr;
 
     if (root->point == pt)
-        return true;
+        return root;
 
-    int axis = level % pt.size();
+    int axis = depth % pt.size();
 
     if (root->point[axis] < pt[axis])
     {
-        return findPointRec(root->left, pt, level + 1);
+        return findNodeRec(root->left, pt, depth + 1);
     }
     else
     {
-        return findPointRec(root->right, pt, level + 1);
+        return findNodeRec(root->right, pt, depth + 1);
     }
 }
 
-bool KD_Tree::findPoint(KD_Point pt)
+KdNode *KdTree::findNode(KdPoint pt)
 {
-    return findPointRec(this->root, pt, 0);
+    return findNodeRec(this->root, pt, 0);
 };
 
 /****************************************************************
  * Add Point
  */
 
-KD_Node *addPointRec(KD_Node *root, KD_Point pt, int level)
+KdNode *addPointRec(KdNode *root, KdPoint pt, int depth)
 {
-    if (root == nullptr || root->deleted)
-        return new KD_Node(pt);
+    if (root == nullptr)
+        return new KdNode(pt);
 
-    int axis = level % pt.size();
+    int axis = depth % pt.size();
 
     if (root->point[axis] < pt[axis])
     {
-        root->left = addPointRec(root->left, pt, level + 1);
+        root->left = addPointRec(root->left, pt, depth + 1);
+        root->left->parent = root;
     }
     else
     {
-        root->right = addPointRec(root->right, pt, level + 1);
+        root->right = addPointRec(root->right, pt, depth + 1);
+        root->right->parent = root;
     }
 
     return root;
 };
 
-void KD_Tree::addPoint(KD_Point pt)
+void KdTree::addPoint(KdPoint pt)
 {
     this->root = addPointRec(this->root, pt, 0);
 };
@@ -101,116 +117,143 @@ void KD_Tree::addPoint(KD_Point pt)
 /****************************************************************
  * Delete Point
  */
-bool deletePointRec(KD_Node *root, KD_Point pt, int level)
+
+void subTree(KdNode *root, std::vector<KdPoint> vec)
 {
-    if (root == nullptr || root->deleted)
+    if (root != nullptr)
     {
-        return false;
+        vec.push_back(root->point);
+        subTree(root->left, vec);
+        subTree(root->right, vec);
     }
+}
 
-    if (root->point == pt)
+bool KdTree::deletePoint(KdPoint pt)
+{
+    // Locate the node to delete
+    KdNode *nodeToDelete = findNode(pt);
+    if (nodeToDelete != nullptr)
     {
-        return root->deleted = true;
-    }
 
-    int axis = level % pt.size();
-    if (root->point[axis] < pt[axis])
-    {
-        return deletePointRec(root->left, pt, level + 1);
+        // List the points stored in the subtree
+        std::vector<KdPoint> pts;
+
+        subTree(nodeToDelete->left, pts);
+        subTree(nodeToDelete->right, pts);
+
+        // Keep depth to guarantee the invariant is not broken
+        KdNode *newSubTree = this->build(pts, nodeToDelete->depth);
+
+        // Replace the node with the subtree
+        if (nodeToDelete->parent->left == nodeToDelete)
+        {
+            nodeToDelete->parent->left = newSubTree;
+        }
+        else
+        {
+            nodeToDelete->parent->right = newSubTree;
+        }
+        return true;
     }
     else
     {
-        return deletePointRec(root->right, pt, level + 1);
+        return false;
     }
-}
-
-bool KD_Tree::deletePoint(KD_Point pt)
-{
-    return deletePointRec(this->root, pt, 0);
 }
 
 /****************************************************************
- * Points in range
+ * NearestNeighbour search for a given point
  */
 
-std::vector<KD_Point> pointsInRangeRec(KD_Node *root, KD_Point pt, int range, int level)
+void nearestNeighbourSearchRec(KdNode *current_node, KdPoint search_pt, double &minDist, KdPoint &minPt, int depth)
 {
-    std::vector<KD_Point> pts;
-    if (root == nullptr || root->deleted)
+
+    double distance = euc_kd_distance(current_node->point, search_pt);
+
+    int axis = depth % current_node->point.size();
+
+    // Check if the hypersphere with radius minDist intersects the splitting hyperplane
+    // Since the hyperplanes are all axis-aligned this is implemented as a simple comparison to see
+    // whether the distance between the splitting coordinate of the search point and current node is lesser
+    // than the distance (overall coordinates) from the search point to the current best
+    if (search_pt[axis] + minDist < current_node->point[axis])
     {
-        return pts;
+        // It doesn't intersect
+        if (current_node->left)
+            nearestNeighbourSearchRec(current_node->left, search_pt, minDist, minPt, depth + 1);
+        if (search_pt[axis] + minDist >= current_node->point[axis])
+            if (current_node->right)
+                nearestNeighbourSearchRec(current_node->right, search_pt, minDist, minPt, depth + 1);
+    }
+    else
+    {
+        // It intersects
+        if (current_node->right)
+            nearestNeighbourSearchRec(current_node->right, search_pt, minDist, minPt, depth + 1);
+        if (search_pt[axis] - minDist <= current_node->point[axis])
+            if (current_node->left)
+                nearestNeighbourSearchRec(current_node->left, search_pt, minDist, minPt, depth + 1);
     }
 
-    int axis = pt.size() % level;
-
-    if (euc_kd_distance(root->point, pt) <= range)
+    if (distance < minDist)
     {
-        pts.push_back(root->point);
+        minDist = distance;
+        minPt = current_node->point;
     }
+};
 
-    if (pt[axis] - range < root->point[axis])
-    {
-        std::vector<KD_Point> leftResult = pointsInRangeRec(root->left, pt, range, level + 1);
-        pts.insert(pts.end(), leftResult.begin(), leftResult.end());
-    }
-    if (pt[axis] + range > root->point[axis])
-    {
-        std::vector<KD_Point> rightResult = pointsInRangeRec(root->right, pt, range, level + 1);
-        pts.insert(pts.end(), rightResult.begin(), rightResult.end());
-    }
-
-    return pts;
-}
-
-std::vector<KD_Point> KD_Tree::pointsInRange(KD_Point pt, int range)
+KdPoint KdTree::nearestNeighbourSearch(KdPoint pt)
 {
-    return pointsInRangeRec(this->root, pt, range, 0);
+    double max = std::numeric_limits<double>::max();
+    KdPoint minPt = this->root->point;
+    nearestNeighbourSearchRec(this->root, pt, max, minPt, 0);
+    return minPt;
 };
 
 /****************************************************************
  * Print tree to standard output
  */
 
-void KD_Tree::print()
+void KdTree::print()
 {
 
-    KD_Node *root = this->root;
+    KdNode *root = this->root;
 
     if (root == nullptr)
         return;
 
-    std::queue<KD_Node *> nodeQ;
-    std::queue<int> levelQ;
+    std::queue<KdNode *> nodeQ;
+    std::queue<int> depthQ;
     std::queue<int> offsetQ;
 
     nodeQ.push(root);
-    levelQ.push(0);
+    depthQ.push(0);
 
     while (!nodeQ.empty())
     {
-        KD_Node *current = nodeQ.front();
-        int currentLevel = levelQ.front();
+        KdNode *current = nodeQ.front();
+        int currentdepth = depthQ.front();
 
         nodeQ.pop();
-        levelQ.pop();
+        depthQ.pop();
 
         current->print();
 
-        if (levelQ.size() == 0 || currentLevel < levelQ.front())
+        if (depthQ.size() == 0 || currentdepth < depthQ.front())
         {
             std::cout << std::endl;
         }
 
-        if (current->left && !current->left->deleted)
+        if (current->left)
         {
             nodeQ.push(current->left);
-            levelQ.push(currentLevel + 1);
+            depthQ.push(currentdepth + 1);
         }
 
-        if (current->right && !current->right->deleted)
+        if (current->right)
         {
             nodeQ.push(current->right);
-            levelQ.push(currentLevel + 1);
+            depthQ.push(currentdepth + 1);
         }
     }
 };
