@@ -8,6 +8,7 @@ This repo is for educational purpose only, DON'T use it in production
 
 ## Supported operations
 
+- [x] Build _k_-dimensional tree from point vector
 - [x] Add _k_-dimensional point
 - [x] Delete _k_-dimensional point via _soft-delete_
 - [x] Query _k_-dimensional point
