@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <math.h>
+#include <iostream>
 
 typedef std::vector<float> KdPoint;
 
@@ -37,5 +38,15 @@ inline float euc_kd_distance(KdPoint pt1, KdPoint pt2)
 
     return sqrt(dist);
 };
+
+inline void printPoint(KdPoint pt)
+{
+    std::cout << "( ";
+    for (float c : pt)
+    {
+        std::cout << c << " ";
+    }
+    std::cout << ")";
+}
 
 #endif
