@@ -4,7 +4,7 @@ This repository contains a simple C++ implementation of a [_k_-d Tree](https://e
 
 :warning: **WARNING**
 
-This repo is for educational purpose only, DON'T use it in production
+This repo is for educational purpose only, it is not intended for production
 
 ## Supported operations
 
