@@ -42,7 +42,7 @@ make
 ## Roadmap
 
 - [ ] Tree rebalancing
-- [ ] Pretty print with indentation
+- [x] Pretty print with indentation
 - [ ] Python interface
 
 ## License
