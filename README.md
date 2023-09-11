@@ -10,9 +10,9 @@ This repo is for educational purpose only, DON'T use it in production
 
 - [x] Build _k_-dimensional tree from point vector
 - [x] Add _k_-dimensional point
-- [x] Delete _k_-dimensional point via _soft-delete_
-- [x] Query _k_-dimensional point
-- [x] (_circular_) Range query on a _k_-dimensional point 
+- [x] Delete _k_-dimensional point
+- [x] Find _k_-dimensional point
+- [x] Nearest Neighbour to a _k_-dimensional point 
 - [x] Pretty print _k_-d Tree
 
 ## Getting started
